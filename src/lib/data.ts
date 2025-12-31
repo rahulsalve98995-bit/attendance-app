@@ -1,13 +1,15 @@
-import { supabase } from './supabase';
+import { getSupabaseClient } from './supabase';
 import { User, Attendance } from '@/types';
 
 export async function readUsers(): Promise<User[]> {
+  const supabase = getSupabaseClient();
   const { data, error } = await supabase.from('users').select('*');
   if (error) throw error;
   return data || [];
 }
 
 export async function getUserByEmail(email: string): Promise<User | null> {
+  const supabase = getSupabaseClient();
   const { data, error } = await supabase
     .from('users')
     .select('*')
@@ -18,6 +20,7 @@ export async function getUserByEmail(email: string): Promise<User | null> {
 }
 
 export async function createUser(user: Omit<User, 'id'>): Promise<User> {
+  const supabase = getSupabaseClient();
   const newUser: User = {
     ...user,
     id: crypto.randomUUID(),
@@ -32,6 +35,7 @@ export async function createUser(user: Omit<User, 'id'>): Promise<User> {
 }
 
 export async function getAttendanceByUserAndDate(userId: string, date: string): Promise<Attendance | null> {
+  const supabase = getSupabaseClient();
   const { data, error } = await supabase
     .from('attendance')
     .select('*')
@@ -49,6 +53,7 @@ export async function getAttendanceByUserAndDate(userId: string, date: string): 
 }
 
 export async function createOrUpdateAttendance(att: Partial<Attendance>): Promise<Attendance> {
+  const supabase = getSupabaseClient();
   const existing = await getAttendanceByUserAndDate(att.userId!, att.date!);
   if (existing) {
     const { data, error } = await supabase
