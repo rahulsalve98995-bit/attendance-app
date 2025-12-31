@@ -64,6 +64,9 @@ export async function createOrUpdateAttendance(att: Partial<Attendance>): Promis
       .update({
         punch_in: att.punchIn || existing.punchIn,
         punch_out: att.punchOut || existing.punchOut,
+        break_start: att.breakStart !== undefined ? att.breakStart : existing.breakStart,
+        break_end: att.breakEnd !== undefined ? att.breakEnd : existing.breakEnd,
+        total_working_hours: att.totalWorkingHours !== undefined ? att.totalWorkingHours : existing.totalWorkingHours,
       })
       .eq('id', existing.id)
       .select()
@@ -75,6 +78,9 @@ export async function createOrUpdateAttendance(att: Partial<Attendance>): Promis
       date: data.date,
       punchIn: data.punch_in,
       punchOut: data.punch_out,
+      breakStart: data.break_start,
+      breakEnd: data.break_end,
+      totalWorkingHours: data.total_working_hours,
     };
   } else {
     const newAtt = {
@@ -99,6 +105,9 @@ export async function createOrUpdateAttendance(att: Partial<Attendance>): Promis
       date: data.date,
       punchIn: data.punch_in,
       punchOut: data.punch_out,
+      breakStart: data.break_start,
+      breakEnd: data.break_end,
+      totalWorkingHours: data.total_working_hours,
     };
   }
 }
