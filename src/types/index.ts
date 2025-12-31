@@ -12,6 +12,9 @@ export interface Attendance {
   date: string; // YYYY-MM-DD
   punchIn: string | null; // ISO timestamp
   punchOut: string | null; // ISO timestamp
+  breakStart: string | null; // ISO timestamp
+  breakEnd: string | null; // ISO timestamp
+  totalWorkingHours: number | null; // in hours
 }
 
 export interface LoginRequest {
