@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/auth';
 import { getAttendanceByUserAndDate, createOrUpdateAttendance } from '@/lib/data';
 

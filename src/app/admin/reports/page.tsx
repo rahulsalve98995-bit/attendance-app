@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 
 interface Report {
@@ -23,7 +23,7 @@ export default function ReportsPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const fetchReports = async () => {
+  const fetchReports = useCallback(async () => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
@@ -41,11 +41,11 @@ export default function ReportsPage() {
       console.error('Error fetching reports:', error);
     }
     setLoading(false);
-  };
+  }, [startDate, endDate, router]);
 
   useEffect(() => {
     fetchReports();
-  }, []);
+  }, [fetchReports]);
 
   const handleFilter = () => {
     fetchReports();
