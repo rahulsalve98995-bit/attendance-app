@@ -13,6 +13,11 @@ export default function AdminPage() {
   const [error, setError] = useState('');
   const router = useRouter();
 
+  const handleLogout = async () => {
+    await fetch('/api/auth/logout', { method: 'POST' });
+    router.push('/login');
+  };
+
   const fetchUsers = useCallback(async () => {
     const res = await fetch('/api/users');
     if (res.ok) {
@@ -51,7 +56,15 @@ export default function AdminPage() {
 
   return (
     <main className="p-8">
-      <h1 className="text-2xl font-bold mb-6">Admin Dashboard</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+        <button
+          onClick={handleLogout}
+          className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+        >
+          Logout
+        </button>
+      </div>
 
       <div className="mb-8">
         <h2 className="text-xl font-semibold mb-4">Add New User</h2>
