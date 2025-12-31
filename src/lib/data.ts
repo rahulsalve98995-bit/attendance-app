@@ -49,6 +49,9 @@ export async function getAttendanceByUserAndDate(userId: string, date: string): 
     date: data.date,
     punchIn: data.punch_in,
     punchOut: data.punch_out,
+    breakStart: data.break_start,
+    breakEnd: data.break_end,
+    totalWorkingHours: data.total_working_hours,
   } : null;
 }
 
@@ -80,6 +83,9 @@ export async function createOrUpdateAttendance(att: Partial<Attendance>): Promis
       date: att.date!,
       punch_in: att.punchIn || null,
       punch_out: att.punchOut || null,
+      break_start: att.breakStart || null,
+      break_end: att.breakEnd || null,
+      total_working_hours: att.totalWorkingHours || null,
     };
     const { data, error } = await supabase
       .from('attendance')

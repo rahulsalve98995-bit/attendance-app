@@ -29,7 +29,41 @@ export default function EmployeePage() {
   }, [fetchAttendance]);
 
   const handlePunch = async () => {
-    const res = await fetch('/api/attendance', { method: 'POST' });
+    const res = await fetch('/api/attendance', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'punch' })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      setMessage(data.message);
+      fetchAttendance();
+    } else {
+      setMessage(data.error);
+    }
+  };
+
+  const handleBreakStart = async () => {
+    const res = await fetch('/api/attendance', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'break_start' })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      setMessage(data.message);
+      fetchAttendance();
+    } else {
+      setMessage(data.error);
+    }
+  };
+
+  const handleBreakEnd = async () => {
+    const res = await fetch('/api/attendance', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'break_end' })
+    });
     const data = await res.json();
     if (res.ok) {
       setMessage(data.message);
@@ -41,10 +75,17 @@ export default function EmployeePage() {
 
   const getStatus = () => {
     if (!attendance) return 'Not punched in today';
-    if (attendance.punchIn && !attendance.punchOut) return 'Punched in';
+    if (attendance.punchIn && !attendance.punchOut) {
+      if (attendance.breakStart && !attendance.breakEnd) return 'On break';
+      return 'Punched in';
+    }
     if (attendance.punchIn && attendance.punchOut) return 'Punched out';
     return 'Not punched in today';
   };
+
+  const canStartBreak = attendance && attendance.punchIn && !attendance.punchOut && !attendance.breakStart;
+  const canEndBreak = attendance && attendance.breakStart && !attendance.breakEnd;
+  const canPunchOut = attendance && attendance.punchIn && !attendance.punchOut;
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-8">
@@ -63,16 +104,44 @@ export default function EmployeePage() {
           {attendance?.punchIn && (
             <p>Punched in at: {new Date(attendance.punchIn).toLocaleTimeString()}</p>
           )}
+          {attendance?.breakStart && (
+            <p>Break started at: {new Date(attendance.breakStart).toLocaleTimeString()}</p>
+          )}
+          {attendance?.breakEnd && (
+            <p>Break ended at: {new Date(attendance.breakEnd).toLocaleTimeString()}</p>
+          )}
           {attendance?.punchOut && (
             <p>Punched out at: {new Date(attendance.punchOut).toLocaleTimeString()}</p>
           )}
+          {attendance?.totalWorkingHours && (
+            <p>Total working hours: {attendance.totalWorkingHours.toFixed(2)} hours</p>
+          )}
         </div>
-        <button
-          onClick={handlePunch}
-          className="w-full bg-green-500 text-white p-4 rounded text-xl"
-        >
-          {attendance?.punchIn && !attendance?.punchOut ? 'Punch Out' : 'Punch In'}
-        </button>
+        <div className="space-y-4">
+          <button
+            onClick={handlePunch}
+            className="w-full bg-green-500 text-white p-4 rounded text-xl disabled:opacity-50"
+            disabled={!canPunchOut && !(attendance?.punchIn === null)}
+          >
+            {attendance?.punchIn && !attendance?.punchOut ? 'Punch Out' : 'Punch In'}
+          </button>
+          {canStartBreak && (
+            <button
+              onClick={handleBreakStart}
+              className="w-full bg-yellow-500 text-white p-4 rounded text-xl"
+            >
+              Start Break
+            </button>
+          )}
+          {canEndBreak && (
+            <button
+              onClick={handleBreakEnd}
+              className="w-full bg-blue-500 text-white p-4 rounded text-xl"
+            >
+              End Break
+            </button>
+          )}
+        </div>
         {message && <p className="mt-4 text-blue-500">{message}</p>}
       </div>
     </main>
