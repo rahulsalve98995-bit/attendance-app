@@ -13,7 +13,7 @@ This is a Next.js-based attendance tracking application designed for small teams
 ## Architecture Decisions
 - **Framework**: Next.js 15 with App Router for server-side rendering and API routes
 - **Styling**: Tailwind CSS v4 for utility-first styling
-- **Data Storage**: JSON file-based persistence (users.json, attendance.json) for simplicity
+- **Data Storage**: Supabase PostgreSQL database for users and attendance data
 - **Authentication**: Session-based auth using Next.js cookies (simplified for demo)
 - **Components**: Reusable components in src/components/
 
@@ -34,3 +34,4 @@ This is a Next.js-based attendance tracking application designed for small teams
 - Added user management and attendance features
 - Implemented authentication and data persistence
 - Fixed ESLint errors and completed build
+- Migrated to Supabase for database storage
