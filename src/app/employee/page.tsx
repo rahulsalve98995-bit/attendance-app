@@ -9,6 +9,11 @@ export default function EmployeePage() {
   const [message, setMessage] = useState('');
   const router = useRouter();
 
+  const handleLogout = async () => {
+    await fetch('/api/auth/logout', { method: 'POST' });
+    router.push('/login');
+  };
+
   const fetchAttendance = useCallback(async () => {
     const res = await fetch('/api/attendance');
     if (res.ok) {
@@ -44,6 +49,14 @@ export default function EmployeePage() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-8">
       <div className="w-full max-w-md text-center">
+        <div className="flex justify-end mb-4">
+          <button
+            onClick={handleLogout}
+            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+          >
+            Logout
+          </button>
+        </div>
         <h1 className="text-2xl font-bold mb-6">Employee Dashboard</h1>
         <div className="mb-6">
           <p className="text-lg">Status: {getStatus()}</p>
