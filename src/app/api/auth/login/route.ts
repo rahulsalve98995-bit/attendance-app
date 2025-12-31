@@ -11,7 +11,8 @@ export async function POST(request: NextRequest) {
     } else {
       return NextResponse.json({ success: false, error: 'Invalid credentials' }, { status: 401 });
     }
-  } catch {
-    return NextResponse.json({ success: false, error: 'Server error' }, { status: 500 });
+  } catch (error) {
+    console.error('Login error:', error);
+    return NextResponse.json({ success: false, error: 'Server error', details: error instanceof Error ? error.message : String(error) }, { status: 500 });
   }
 }
