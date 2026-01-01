@@ -13,11 +13,13 @@ export default function AdminPage() {
   const [error, setError] = useState('');
   const router = useRouter();
 
+  /* 🔐 Logout admin */
   const handleLogout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' });
     router.push('/login');
   };
 
+  /* 📥 Fetch all users */
   const fetchUsers = useCallback(async () => {
     const res = await fetch('/api/users');
     if (res.ok) {
@@ -32,6 +34,7 @@ export default function AdminPage() {
     fetchUsers();
   }, [fetchUsers]);
 
+  /* ➕ Create new user */
   const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -43,6 +46,7 @@ export default function AdminPage() {
     });
 
     if (res.ok) {
+      // Reset form
       setName('');
       setEmail('');
       setPassword('');
@@ -56,15 +60,21 @@ export default function AdminPage() {
 
   return (
     <main className="p-8">
+      {/* 🔝 Header */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+
+        {/* Header buttons */}
         <div className="flex gap-2">
+          {/* 📊 View Reports */}
           <button
             onClick={() => router.push('/admin/reports')}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
           >
             View Reports
           </button>
+
+          {/* 🔐 Logout */}
           <button
             onClick={handleLogout}
             className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
@@ -74,8 +84,10 @@ export default function AdminPage() {
         </div>
       </div>
 
+      {/* ➕ Add new user */}
       <div className="mb-8">
         <h2 className="text-xl font-semibold mb-4">Add New User</h2>
+
         <form onSubmit={handleCreateUser} className="space-y-4 max-w-md">
           <div>
             <label className="block text-sm font-medium">Name</label>
@@ -87,6 +99,7 @@ export default function AdminPage() {
               required
             />
           </div>
+
           <div>
             <label className="block text-sm font-medium">Email</label>
             <input
@@ -97,6 +110,7 @@ export default function AdminPage() {
               required
             />
           </div>
+
           <div>
             <label className="block text-sm font-medium">Password</label>
             <input
@@ -107,6 +121,7 @@ export default function AdminPage() {
               required
             />
           </div>
+
           <div>
             <label className="block text-sm font-medium">Role</label>
             <select
@@ -118,15 +133,22 @@ export default function AdminPage() {
               <option value="admin">Admin</option>
             </select>
           </div>
+
           {error && <p className="text-red-500">{error}</p>}
-          <button type="submit" className="w-full bg-blue-500 text-white p-2 rounded">
+
+          <button
+            type="submit"
+            className="w-full bg-blue-500 text-white p-2 rounded"
+          >
             Create User
           </button>
         </form>
       </div>
 
+      {/* 👥 Users list */}
       <div>
         <h2 className="text-xl font-semibold mb-4">Users</h2>
+
         <table className="w-full border-collapse border border-gray-300">
           <thead>
             <tr>
