@@ -20,44 +20,56 @@ export default function LoginPage() {
     });
 
     const data = await res.json();
+
     if (data.success) {
-      if (data.user.role === 'admin') {
-        router.push('/admin');
-      } else {
-        router.push('/employee');
-      }
+      router.push(data.user.role === 'admin' ? '/admin' : '/employee');
     } else {
-      setError(data.error);
+      setError(data.error || 'Invalid login credentials');
     }
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-8">
-      <div className="w-full max-w-md">
-        <h1 className="text-2xl font-bold mb-6 text-center">Login</h1>
+    <main className="min-h-screen flex items-center justify-center bg-slate-100">
+      <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-8">
+        <h1 className="text-3xl font-bold text-center mb-6 text-gray-800">
+          Attendance Login
+        </h1>
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium">Email</label>
+            <label className="text-sm text-gray-600">Email</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-2 border rounded"
+              className="w-full mt-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="you@example.com"
               required
             />
           </div>
+
           <div>
-            <label className="block text-sm font-medium">Password</label>
+            <label className="text-sm text-gray-600">Password</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-2 border rounded"
+              className="w-full mt-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="••••••••"
               required
             />
           </div>
-          {error && <p className="text-red-500">{error}</p>}
-          <button type="submit" className="w-full bg-blue-500 text-white p-2 rounded">
+
+          {error && (
+            <p className="text-sm text-red-600 bg-red-50 p-2 rounded">
+              {error}
+            </p>
+          )}
+
+          <button
+            type="submit"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-medium transition"
+          >
             Login
           </button>
         </form>
