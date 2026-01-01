@@ -15,6 +15,7 @@ export interface Attendance {
   breakStart: string | null; // ISO timestamp
   breakEnd: string | null; // ISO timestamp
   totalWorkingHours: number | null; // in hours
+
 }
 
 export interface LoginRequest {
