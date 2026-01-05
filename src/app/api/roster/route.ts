@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseClient } from '@/lib/supabase';
 import { requireAuth, requireAdmin } from '@/lib/auth';
-import { Roster } from '@/types';
+import { Roster, ShiftType } from '@/types';
 import { getShiftByType } from '@/lib/data';
+
+type DBRoster = {
+  id: string;
+  employee_id: string;
+  date: string;
+  shift: string;
+};
 
 export async function GET(request: NextRequest) {
   try {
@@ -29,8 +36,8 @@ export async function GET(request: NextRequest) {
       data = rosterData;
     }
     // Map to match types and add shift times
-    const enrichedData = data.map((roster: any) => {
-      const shift = getShiftByType(roster.shift);
+    const enrichedData = data.map((roster: DBRoster) => {
+      const shift = getShiftByType(roster.shift as ShiftType);
       return {
         id: roster.id,
         employeeId: roster.employee_id,
@@ -64,8 +71,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
     // Map back and enrich with times
-    const enrichedData = data.map((roster: any) => {
-      const shift = getShiftByType(roster.shift);
+    const enrichedData = data.map((roster: DBRoster) => {
+      const shift = getShiftByType(roster.shift as ShiftType);
       return {
         id: roster.id,
         employeeId: roster.employee_id,
@@ -99,7 +106,7 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
     // Enrich with times
-    const shiftDetails = getShiftByType(shift as any);
+    const shiftDetails = getShiftByType(shift as ShiftType);
     const enriched = {
       ...data[0],
       startTime: shiftDetails?.startTime,

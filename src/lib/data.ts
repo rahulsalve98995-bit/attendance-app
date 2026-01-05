@@ -65,7 +65,7 @@ export async function deleteUser(userId: string): Promise<void> {
 
 export async function updateUser(userId: string, updates: Partial<User>): Promise<User> {
   const supabase = getSupabaseClient();
-  const updateData: any = {};
+  const updateData: Record<string, string | undefined> = {};
   if (updates.name !== undefined) updateData.name = updates.name;
   if (updates.email !== undefined) updateData.email = updates.email;
   if (updates.phone !== undefined) updateData.phone = updates.phone;

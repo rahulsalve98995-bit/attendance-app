@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Attendance, Roster } from '@/types';
+import { Attendance, Roster, User } from '@/types';
 import dynamic from 'next/dynamic';
 import Notification from '@/components/Notification';
 
@@ -75,7 +75,7 @@ function RosterChart({ roster }: RosterChartProps) {
 export default function EmployeePage() {
     const [attendance, setAttendance] = useState<Attendance | null>(null);
     const [roster, setRoster] = useState<Roster[]>([]);
-    const [userProfile, setUserProfile] = useState<any>(null);
+    const [userProfile, setUserProfile] = useState<User | null>(null);
     const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   // 📍 Live location state (MANDATORY)

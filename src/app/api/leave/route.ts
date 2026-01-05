@@ -1,20 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { getSupabaseClient } from '@/lib/supabase';
+import { requireAuth, requireAdmin } from '@/lib/auth';
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const user = await requireAuth(request);
 
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get('userId');
-    const status = searchParams.get('status');
+    const statusParam = searchParams.get('status');
 
-    let query = supabase
+    let query = getSupabaseClient()
       .from('leave_requests')
       .select(`
         *,
@@ -23,14 +19,14 @@ export async function GET(request: NextRequest) {
       .order('created_at', { ascending: false });
 
     // If not admin, only show own requests
-    if (session.user.role !== 'admin') {
-      query = query.eq('user_id', session.user.id);
+    if (user.role !== 'admin') {
+      query = query.eq('user_id', user.id);
     } else if (userId) {
       query = query.eq('user_id', userId);
     }
 
-    if (status) {
-      query = query.eq('status', status);
+    if (statusParam) {
+      query = query.eq('status', statusParam);
     }
 
     const { data, error } = await query;
@@ -46,10 +42,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const user = await requireAuth(request);
 
     const body = await request.json();
     const { start_date, end_date, leave_type, reason } = body;
@@ -58,10 +51,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await getSupabaseClient()
       .from('leave_requests')
       .insert({
-        user_id: session.user.id,
+        user_id: user.id,
         start_date,
         end_date,
         leave_type,
@@ -82,10 +75,7 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session || session.user.role !== 'admin') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    await requireAdmin(request);
 
     const body = await request.json();
     const { id, status, admin_notes } = body;
@@ -94,7 +84,7 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await getSupabaseClient()
       .from('leave_requests')
       .update({
         status,
