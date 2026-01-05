@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import LoadingSpinner from '@/components/LoadingSpinner';
 
 export default function Home() {
   const router = useRouter();
@@ -26,7 +27,8 @@ export default function Home() {
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-8">
-      <p className="text-lg text-gray-600 dark:text-gray-400">
+      <LoadingSpinner size={50} />
+      <p className="text-lg text-gray-600 dark:text-gray-400 mt-4">
         Loading...
       </p>
     </main>

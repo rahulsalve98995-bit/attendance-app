@@ -4,7 +4,7 @@ import { getSupabaseClient } from '@/lib/supabase';
 
 export async function GET(request: NextRequest) {
   try {
-    await requireAdmin();
+    await requireAdmin(request);
     const supabase = getSupabaseClient();
 
     const url = new URL(request.url);
@@ -40,6 +40,10 @@ export async function GET(request: NextRequest) {
       breakStart: item.break_start,
       breakEnd: item.break_end,
       totalWorkingHours: item.total_working_hours,
+      punchInLatitude: item.punch_in_latitude,
+      punchInLongitude: item.punch_in_longitude,
+      punchOutLatitude: item.punch_out_latitude,
+      punchOutLongitude: item.punch_out_longitude,
     }));
 
     return NextResponse.json({ reports });

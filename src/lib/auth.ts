@@ -37,14 +37,29 @@ export async function getCurrentUser(): Promise<User | null> {
   }
 }
 
-export async function requireAuth(): Promise<User> {
-  const user = await getCurrentUser();
-  if (!user) throw new Error('Unauthorized');
-  return user;
+import { NextRequest } from 'next/server';
+
+export async function requireAuth(request: NextRequest): Promise<User> {
+  const cookie = request.cookies.get('session');
+
+  if (!cookie) {
+    throw new Error('Unauthorized');
+  }
+
+  try {
+    const { userId } = JSON.parse(cookie.value);
+    const users = await import('./data').then(m => m.readUsers());
+    const user = users.find(u => u.id === userId);
+    if (!user) throw new Error('Unauthorized');
+    return user;
+  } catch {
+    throw new Error('Unauthorized');
+  }
 }
 
-export async function requireAdmin(): Promise<User> {
-  const user = await requireAuth();
+
+export async function requireAdmin(request: NextRequest): Promise<User> {
+  const user = await requireAuth(request);
   if (user.role !== 'admin') throw new Error('Admin required');
   return user;
 }

@@ -6,60 +6,61 @@ import {
 } from '@/lib/data';
 
 /**
- * POST → Handle punch, break start & break end
+ * POST → Punch actions
+ * 📍 Location is MANDATORY for punch in/out
  */
 export async function POST(request: NextRequest) {
   try {
-    // 🔐 Authenticate user
-    const user = await requireAuth();
+    // 🔐 Authenticate
+    const user = await requireAuth(request);
 
     const body = await request.json();
-    const action = body.action || 'punch'; // punch | break_start | break_end
-    const today = new Date().toISOString().split('T')[0];
+    const action = body.action || 'punch';
+    const location = body.location;
 
-    // Get today's attendance (if exists)
+    // ❌ Location validation
+    if (
+      !location ||
+      typeof location.latitude !== 'number' ||
+      typeof location.longitude !== 'number'
+    ) {
+      return NextResponse.json(
+        { error: 'Live location is required' },
+        { status: 400 }
+      );
+    }
+
+    const today = new Date().toISOString().split('T')[0];
     const existing = await getAttendanceByUserAndDate(user.id, today);
 
-    /**
-     * 🔹 PUNCH ACTION
-     * - If no punchIn → Punch In
-     * - If punchIn exists & no punchOut → Punch Out
-     */
+    /* ===================== PUNCH ===================== */
     if (action === 'punch') {
-      // ✅ Punch In
+
+      /* 🟢 PUNCH IN */
       if (!existing || !existing.punchIn) {
         const att = await createOrUpdateAttendance({
           userId: user.id,
           date: today,
           punchIn: new Date().toISOString(),
+
+          // 📍 Location
+          punchInLatitude: location.latitude,
+          punchInLongitude: location.longitude,
         });
 
-        return NextResponse.json({
-          message: 'Punched in',
-          attendance: att,
-        });
+        return NextResponse.json({ message: 'Punched in', attendance: att });
       }
 
-      // ✅ Punch Out + calculate working hours
+      /* 🔴 PUNCH OUT */
       if (!existing.punchOut) {
         const punchOut = new Date().toISOString();
         let totalWorkingHours: number | null = null;
 
         if (existing.punchIn) {
-          const punchInMs = new Date(existing.punchIn).getTime();
-          const punchOutMs = new Date(punchOut).getTime();
+          const workingMs =
+            new Date(punchOut).getTime() -
+            new Date(existing.punchIn).getTime();
 
-          let workingMs = punchOutMs - punchInMs;
-
-          // ⏸️ Subtract break time if exists
-          if (existing.breakStart && existing.breakEnd) {
-            const breakMs =
-              new Date(existing.breakEnd).getTime() -
-              new Date(existing.breakStart).getTime();
-            workingMs -= breakMs;
-          }
-
-          // Convert milliseconds → hours
           totalWorkingHours = workingMs / (1000 * 60 * 60);
         }
 
@@ -68,104 +69,44 @@ export async function POST(request: NextRequest) {
           date: today,
           punchOut,
           totalWorkingHours,
+
+          // 📍 Location
+          punchOutLatitude: location.latitude,
+          punchOutLongitude: location.longitude,
         });
 
-        return NextResponse.json({
-          message: 'Punched out',
-          attendance: att,
-        });
+        return NextResponse.json({ message: 'Punched out', attendance: att });
       }
 
-      // ❌ Already punched out
       return NextResponse.json(
-        { error: 'Already punched out for today' },
+        { error: 'Already punched out' },
         { status: 400 }
       );
     }
 
-    /**
-     * 🔹 BREAK START
-     * Allowed only if:
-     * - Punch in exists
-     * - Punch out not done
-     * - Break not already started
-     */
-    if (action === 'break_start') {
-      if (
-        existing &&
-        existing.punchIn &&
-        !existing.punchOut &&
-        !existing.breakStart
-      ) {
-        const att = await createOrUpdateAttendance({
-          userId: user.id,
-          date: today,
-          breakStart: new Date().toISOString(),
-        });
-
-        return NextResponse.json({
-          message: 'Break started',
-          attendance: att,
-        });
-      }
-
-      return NextResponse.json(
-        { error: 'Cannot start break' },
-        { status: 400 }
-      );
-    }
-
-    /**
-     * 🔹 BREAK END
-     * Allowed only if:
-     * - Break started
-     * - Break not already ended
-     */
-    if (action === 'break_end') {
-      if (existing && existing.breakStart && !existing.breakEnd) {
-        const att = await createOrUpdateAttendance({
-          userId: user.id,
-          date: today,
-          breakEnd: new Date().toISOString(),
-        });
-
-        return NextResponse.json({
-          message: 'Break ended',
-          attendance: att,
-        });
-      }
-
-      return NextResponse.json(
-        { error: 'Cannot end break' },
-        { status: 400 }
-      );
-    }
-
-    // ❌ Invalid action
-    return NextResponse.json(
-      { error: 'Invalid action' },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Server error';
-    return NextResponse.json({ error: message }, { status: 401 });
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Server error' },
+      { status: 401 }
+    );
   }
 }
 
 /**
  * GET → Fetch today's attendance
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const user = await requireAuth();
+    const user = await requireAuth(request);
     const today = new Date().toISOString().split('T')[0];
     const att = await getAttendanceByUserAndDate(user.id, today);
 
     return NextResponse.json({ attendance: att });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Server error';
-    return NextResponse.json({ error: message }, { status: 401 });
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Server error' },
+      { status: 401 }
+    );
   }
 }
