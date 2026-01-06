@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { User } from '@/types';
@@ -23,11 +24,7 @@ export default function ProfilePage() {
   const [avatarUrl, setAvatarUrl] = useState('');
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
 
-  useEffect(() => {
-    fetchProfile();
-  }, []);
-
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     try {
       const res = await fetch('/api/auth/me');
       if (res.ok) {
@@ -43,14 +40,18 @@ export default function ProfilePage() {
       } else {
         router.push('/login');
       }
-    } catch (error) {
+    } catch (_error) {
       setError('Failed to load profile');
     } finally {
       setLoading(false);
     }
-  };
+  }, [router]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  useEffect(() => {
+    fetchProfile();
+  }, [fetchProfile]);
+
+   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
     setError('');
@@ -81,7 +82,7 @@ export default function ProfilePage() {
         const data = await res.json();
         setError(data.error || 'Failed to update profile');
       }
-    } catch (error) {
+    } catch (_error) {
       setError('Network error');
     } finally {
       setSaving(false);
@@ -119,9 +120,11 @@ export default function ProfilePage() {
           <div className="flex items-center space-x-6">
             <div className="flex-shrink-0">
               {avatarUrl ? (
-                <img
+                <Image
                   src={avatarUrl}
                   alt="Profile"
+                  width={96}
+                  height={96}
                   className="w-24 h-24 rounded-full object-cover border-2 border-gray-300"
                 />
               ) : (
@@ -138,7 +141,6 @@ export default function ProfilePage() {
                 onChange={async (e) => {
                   const file = e.target.files?.[0];
                   if (file) {
-                    setAvatarFile(file);
                     const reader = new FileReader();
                     reader.onload = (e) => {
                       const result = e.target?.result as string;

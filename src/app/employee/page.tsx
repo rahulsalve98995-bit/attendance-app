@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Attendance, Roster, User } from '@/types';
 import dynamic from 'next/dynamic';
+import Image from 'next/image';
 import Notification from '@/components/Notification';
 
 const Map = dynamic(() => import('@/components/Map'), { ssr: false });
@@ -245,9 +246,11 @@ export default function EmployeePage() {
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center gap-3">
             {userProfile?.avatar ? (
-              <img
+              <Image
                 src={userProfile.avatar}
                 alt="Profile"
+                width={40}
+                height={40}
                 className="w-10 h-10 rounded-full object-cover border-2 border-gray-300"
               />
             ) : (

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 // Icon components
 const HomeIcon = ({ className }: { className?: string }) => (
   <svg className={className || "w-5 h-5"} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -141,7 +142,7 @@ export default function Sidebar({ userRole, userName, userAvatar, onLogout }: Si
         <div className="p-4 border-b border-gray-700">
           <div className="flex items-center space-x-3">
             {userAvatar ? (
-              <img src={userAvatar} alt="Avatar" className="w-8 h-8 rounded-full" />
+              <Image src={userAvatar} alt="Avatar" width={32} height={32} className="w-8 h-8 rounded-full" />
             ) : (
               <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-sm font-semibold">
                 {userName.charAt(0).toUpperCase()}
