@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { User, Roster, ShiftType } from '@/types';
+import { User, Roster } from '@/types';
 import dynamic from 'next/dynamic';
 import Sidebar from '@/components/Sidebar';
 

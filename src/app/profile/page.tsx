@@ -22,8 +22,6 @@ export default function ProfilePage() {
   const [department, setDepartment] = useState('');
   const [position, setPosition] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');
-  const [avatarFile, setAvatarFile] = useState<File | null>(null);
-
   const fetchProfile = useCallback(async () => {
     try {
       const res = await fetch('/api/auth/me');

@@ -48,14 +48,14 @@ export async function GET(request: NextRequest) {
       };
     });
     return NextResponse.json({ roster: enrichedData });
-  } catch (error) {
+  } catch (_error) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const user = await requireAdmin(request);
+    await requireAdmin(request);
     const supabase = getSupabaseClient();
     const body: Omit<Roster, 'id' | 'startTime' | 'endTime'> = await request.json();
     const mappedBody = {
@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
       };
     });
     return NextResponse.json({ roster: enrichedData });
-  } catch (error) {
+  } catch (_error) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 }
@@ -113,7 +113,7 @@ export async function PUT(request: NextRequest) {
       endTime: shiftDetails?.endTime,
     };
     return NextResponse.json(enriched);
-  } catch (error) {
+  } catch (_error) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 }
@@ -135,7 +135,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch (_error) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 }

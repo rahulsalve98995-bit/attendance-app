@@ -333,7 +333,7 @@ export default function EmployeePage() {
         {/* ️ Location Map */}
         {locations.length > 0 && (
           <div className="mb-6">
-            <h3 className="text-lg font-semibold mb-2">Today's Locations</h3>
+            <h3 className="text-lg font-semibold mb-2">Todays Locations</h3>
             <Map
               locations={locations}
               center={location ? [location.latitude, location.longitude] : undefined}
